@@ -1,0 +1,101 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    margin: 20px;
+    padding: 0;
+    background-color: azure;
+}
+
+h1 {
+    text-align: center;
+    color: black;
+}
+
+form {
+    max-width: 600px;
+    margin: auto;
+    background-color: aquamarine;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+}
+
+fieldset {
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: aliceblue;
+}
+
+legend {
+    font-weight: bold;
+    text-align: left;
+    color: rgb(34, 2, 24);
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    color: rgb(226, 26, 26);
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+/* Input focus styles */
+input:focus, textarea:focus {
+    border-color: blueviolet;
+    outline: none;
+    box-shadow: 0 0 5px blueviolet;
+}
+
+button {
+    display: flex;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    background-color: blueviolet;
+    color: white; /* Changed to white for better contrast */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 18px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+button:hover {
+    background-color: darkgreen;
+}
+
+#resumeoutput {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px; /* Fixed the missing unit */
+    border: 2px solid;
+    border-radius: 8px;
+    background-color: aquamarine;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+#resumeoutput h2 {
+    color: darkgrey;
+}
+
+#profilepicture {
+    display: block;
+    margin: auto;
+    border: 5px solid;
+    box-shadow: 0 4px 8px rgba(11, 7, 211, 0.5);
+    border-radius: 50%; 
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
