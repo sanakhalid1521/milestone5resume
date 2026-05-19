@@ -1,5 +1,5 @@
 /**
- * Professional Resume Builder - Core Logic
+ * Professional Resume Builder - Core Logic (TypeScript)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,29 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeColorPicker = document.getElementById('themeColor') as HTMLInputElement;
     const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
     const profilePicInput = document.getElementById('profilepicture') as HTMLInputElement;
+    const themeToggle = document.getElementById('themeToggle') as HTMLButtonElement;
+    
+    // Shareable Elements
+    const usernameInput = document.getElementById('username') as HTMLInputElement;
+    const shareLinkContainer = document.getElementById('shareLinkContainer') as HTMLElement;
+    const shareableLinkSpan = document.getElementById('shareableLink') as HTMLElement;
+    const copyLinkBtn = document.getElementById('copyLinkBtn') as HTMLButtonElement;
 
     // --- State ---
     let profilePicURL = '';
-
-    // --- Core Functions ---
 
     /**
      * Updates the resume preview based on current form data
      */
     const updatePreview = () => {
-        const formData = new FormData(resumeForm);
-        
-        // Extract values (using IDs directly since FormData requires 'name' attribute which I might have missed in HTML, 
-        // let's use direct element access for reliability)
         const data = {
-            name: (document.getElementById('name') as HTMLInputElement).value || 'Your',
-            lastname: (document.getElementById('lastname') as HTMLInputElement).value || 'Name',
-            email: (document.getElementById('email') as HTMLInputElement).value || 'hello@example.com',
-            phone: (document.getElementById('mobilenumber') as HTMLInputElement).value || '+1 234 567 890',
-            address: (document.getElementById('address') as HTMLInputElement).value || 'Location, Country',
-            education: (document.getElementById('education') as HTMLTextAreaElement).value || 'Your Education details...',
-            experience: (document.getElementById('experience') as HTMLTextAreaElement).value || 'Your Work Experience...',
-            skills: (document.getElementById('skill') as HTMLTextAreaElement).value || 'Your Skills...'
+            username: usernameInput.value.trim(),
+            name: (document.getElementById('name') as HTMLInputElement).value || '',
+            email: (document.getElementById('email') as HTMLInputElement).value || '',
+            phone: (document.getElementById('mobilenumber') as HTMLInputElement).value || '',
+            address: (document.getElementById('address') as HTMLInputElement).value || '',
+            linkedin: (document.getElementById('linkedin') as HTMLInputElement).value || '',
+            github: (document.getElementById('github') as HTMLInputElement).value || '',
+            education: (document.getElementById('education') as HTMLTextAreaElement).value || '',
+            experience: (document.getElementById('experience') as HTMLTextAreaElement).value || '',
+            skills: (document.getElementById('skill') as HTMLTextAreaElement).value || '',
+            projectLink: (document.getElementById('projectLink') as HTMLInputElement).value || ''
         };
 
         const template = templateSelector.value;
@@ -39,55 +43,101 @@ document.addEventListener('DOMContentLoaded', () => {
         // Generate Resume HTML
         resumePreview.innerHTML = `
             <div class="resume-header">
-                <div class="header-main">
-                    <h2 class="editable">${data.name} ${data.lastname}</h2>
-                    <div class="contact-info">
-                        <p>${data.email} | ${data.phone}</p>
-                        <p>${data.address}</p>
+                <div class="header-text">
+                    <h2>${data.name || 'Your Name'}</h2>
+                    <div class="contact-links">
+                        <span><i class="fas fa-envelope"></i> ${data.email || 'email@example.com'}</span>
+                        <span><i class="fas fa-phone"></i> ${data.phone || '+1 234 567 890'}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${data.address || 'City, Country'}</span>
+                        ${data.linkedin ? `<span><i class="fab fa-linkedin"></i> ${data.linkedin}</span>` : ''}
+                        ${data.github ? `<span><i class="fab fa-github"></i> ${data.github}</span>` : ''}
                     </div>
                 </div>
-                ${profilePicURL ? `<img src="${profilePicURL}" class="preview-pic" alt="Profile">` : ''}
+                ${profilePicURL ? `<img src="${profilePicURL}" class="resume-pic" alt="Profile">` : ''}
             </div>
 
             <div class="resume-section">
                 <h3>Education</h3>
-                <p class="editable" style="white-space: pre-line;">${data.education}</p>
+                <p style="white-space: pre-line;">${data.education || 'Your Education details...'}</p>
             </div>
 
             <div class="resume-section">
                 <h3>Experience</h3>
-                <p class="editable" style="white-space: pre-line;">${data.experience}</p>
+                <p style="white-space: pre-line;">${data.experience || 'Your Work Experience...'}</p>
             </div>
 
             <div class="resume-section">
                 <h3>Skills</h3>
-                <p class="editable" style="white-space: pre-line;">${data.skills}</p>
+                <p style="white-space: pre-line;">${data.skills || 'Your Skills...'}</p>
             </div>
+
+            ${data.projectLink ? `
+                <div class="resume-section">
+                    <h3>Featured Project</h3>
+                    <div class="project-box">
+                        <p><i class="fas fa-link"></i> <a href="${data.projectLink}" target="_blank">${data.projectLink}</a></p>
+                    </div>
+                </div>
+            ` : ''}
         `;
 
         // Apply Template Class
         resumePreview.className = `resume-paper ${template}-template`;
+
+        // Update Shareable Link and Save to LocalStorage
+        if (data.username) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const uniqueUrl = `${baseUrl}?username=${data.username}`;
+            shareableLinkSpan.textContent = uniqueUrl;
+            shareLinkContainer.style.display = 'block';
+            
+            // Save to localStorage for persistence
+            localStorage.setItem(data.username, JSON.stringify(data));
+        } else {
+            shareLinkContainer.style.display = 'none';
+        }
+    };
+
+    /**
+     * Load data from LocalStorage or URL
+     */
+    const loadSavedData = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+
+        if (username) {
+            const savedData = localStorage.getItem(username);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Fill form
+                usernameInput.value = username;
+                (document.getElementById('name') as HTMLInputElement).value = data.name;
+                (document.getElementById('email') as HTMLInputElement).value = data.email;
+                (document.getElementById('mobilenumber') as HTMLInputElement).value = data.phone;
+                (document.getElementById('address') as HTMLInputElement).value = data.address;
+                (document.getElementById('linkedin') as HTMLInputElement).value = data.linkedin;
+                (document.getElementById('github') as HTMLInputElement).value = data.github;
+                (document.getElementById('education') as HTMLTextAreaElement).value = data.education;
+                (document.getElementById('experience') as HTMLTextAreaElement).value = data.experience;
+                (document.getElementById('skill') as HTMLTextAreaElement).value = data.skills;
+                (document.getElementById('projectLink') as HTMLInputElement).value = data.projectLink;
+                
+                updatePreview();
+            }
+        }
     };
 
     // --- Event Listeners ---
 
-    // Live update on any input
-    resumeForm.addEventListener('input', () => {
-        updatePreview();
-    });
+    resumeForm.addEventListener('input', updatePreview);
+    templateSelector.addEventListener('change', updatePreview);
 
-    // Template selection
-    templateSelector.addEventListener('change', () => {
-        updatePreview();
-    });
-
-    // Theme color update
     themeColorPicker.addEventListener('input', (e) => {
         const color = (e.target as HTMLInputElement).value;
         document.documentElement.style.setProperty('--primary-color', color);
     });
 
-    // Profile Picture Handling
     profilePicInput.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (file) {
@@ -96,11 +146,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // PDF Download (Print)
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+    });
+
+    copyLinkBtn.addEventListener('click', () => {
+        const link = shareableLinkSpan.textContent || '';
+        navigator.clipboard.writeText(link).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    });
+
     downloadBtn.addEventListener('click', () => {
         window.print();
     });
 
-    // Initial Preview
+    // Initial load
+    loadSavedData();
     updatePreview();
 });
