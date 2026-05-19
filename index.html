@@ -3,64 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Builder</title>
+    <title>Professional Resume Builder</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>unique path and shareable task By Sana Khalid</h1>
-    
-    <form id="resumeForm">
-        <fieldset>
-<!---profilePicture--->
-<label for="profilepicture">Profile Picture:</label>
-<input type="file" id="profilepicture" name="profilepicture" accept="image/*" required>
+    <header class="app-header">
+        <div class="header-content">
+            <h1>Resume<span>Pro</span></h1>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-btn" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <select id="templateSelector">
+                    <option value="modern">Modern Template</option>
+                    <option value="classic">Classic Template</option>
+                    <option value="minimal">Minimal Template</option>
+                </select>
+                <input type="color" id="themeColor" value="#4f46e5" title="Choose Accent Color">
+                <button id="downloadBtn" class="primary-btn">Download PDF</button>
+            </div>
+        </div>
+    </header>
 
-            <legend>Personal Information</legend>
+    <main class="main-container">
+        <!-- Left Side: Editor -->
+        <section class="editor-side">
+            <form id="resumeForm">
+                <div class="form-section">
+                    <h3><span class="step-num">1</span> Personal & Social</h3>
+                    <div class="input-group">
+                        <label for="username">Username (for Unique URL)</label>
+                        <input type="text" id="username" placeholder="sanakhalid" required>
+                    </div>
+                    <div class="input-group share-link-box" id="shareLinkContainer" style="display:none;">
+                        <label>Your Shareable Link:</label>
+                        <div class="copy-box">
+                            <span id="shareableLink"></span>
+                            <button type="button" id="copyLinkBtn"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="profilepicture">Profile Picture</label>
+                        <input type="file" id="profilepicture" accept="image/*">
+                    </div>
+                    <div class="input-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="e.g. Sana Khalid" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="john@example.com" required>
+                    </div>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label for="mobilenumber">Phone Number</label>
+                            <input type="tel" id="mobilenumber" placeholder="+1 234 567 890" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="address">Location</label>
+                            <input type="text" id="address" placeholder="New York, USA" required>
+                        </div>
+                    </div>
+                    <!-- Social Links Added -->
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label for="linkedin">LinkedIn URL</label>
+                            <input type="url" id="linkedin" placeholder="linkedin.com/in/username">
+                        </div>
+                        <div class="input-group">
+                            <label for="github">GitHub URL</label>
+                            <input type="url" id="github" placeholder="github.com/username">
+                        </div>
+                    </div>
+                </div>
 
-            <label for="username"> RESUME URL:</label>
-            <input type="text" id="username" required/><br>
+                <div class="form-section">
+                    <h3><span class="step-num">2</span> Professional Details</h3>
+                    <div class="input-group">
+                        <label for="education">Education</label>
+                        <textarea id="education" rows="3" placeholder="Degree, University, Year" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="experience">Work Experience</label>
+                        <textarea id="experience" rows="3" placeholder="Job Title, Company, Dates" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="skill">Skills</label>
+                        <textarea id="skill" rows="3" placeholder="React, Node.js, etc." required></textarea>
+                    </div>
+                    <!-- Project Link Added -->
+                    <div class="input-group">
+                        <label for="projectLink">Featured Project Link</label>
+                        <input type="url" id="projectLink" placeholder="https://my-project.com">
+                    </div>
+                </div>
+            </form>
+        </section>
 
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required><br>
-
-            <label for="lastname">Last Name:</label>
-            <input type="text" id="lastname" name="lastname" required><br>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required><br>
-
-            <label for="mobilenumber">Mobile Number:</label>
-            <input type="tel" id="mobilenumber" name="mobilenumber" required><br>
-
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" required><br>
-
-        </fieldset>
-
-        <fieldset>
-            <legend>Education</legend>
-            <label for="education">Education:</label>
-            <textarea id="education" name="education" rows="4" required></textarea><br>
-        </fieldset>
-
-        <fieldset>
-            <legend>Experience</legend>
-            <label for="experience">Experience:</label>
-            <textarea id="experience" name="experience" rows="4" required></textarea><br>
-        </fieldset>
-
-        <fieldset>
-            <legend>Skills</legend>
-            <label for="skill">Skills:</label>
-            <textarea id="skill" name="skill" rows="4" required></textarea><br>
-        </fieldset>
-
-        <button type="submit">Generate Resume Below</button>
-    </form>
-
-    <div id="resumeOutput">
-        <!-- Resume will be generated here -->
-    </div>
+        <!-- Right Side: Preview -->
+        <section class="preview-side">
+            <div id="resumePreview" class="resume-paper modern-template">
+                <div class="preview-placeholder">
+                    <p>Enter your details to generate your professional resume...</p>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>

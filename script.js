@@ -1,72 +1,148 @@
-var _a;
-(_a = document.getElementById('resumeForm')) === null || _a === void 0 ? void 0 : _a.addEventListener('submit', function (event) {
-    var _a;
-    event === null || event === void 0 ? void 0 : event.preventDefault();
-    // Type assertions
-    var profilepictureElement = document.getElementById('profilepicture');
-    var nameElement = document.getElementById('name');
-    var lastnameElement = document.getElementById('lastname');
-    var emailElement = document.getElementById('email');
-    var mobilenumberElement = document.getElementById('mobilenumber');
-    var addressElement = document.getElementById('address');
-    var educationElement = document.getElementById('education');
-    var experienceElement = document.getElementById('experience');
-    var skillElement = document.getElementById('skill');
-    var usernameElement = document.getElementById("username");
-    if (profilepictureElement && nameElement && lastnameElement && emailElement && mobilenumberElement && addressElement && educationElement && experienceElement && skillElement && usernameElement) {
-        var name_1 = nameElement.value;
-        var lastname = lastnameElement.value;
-        var email = emailElement.value;
-        var mobilenumber = mobilenumberElement.value;
-        var address = addressElement.value;
-        var education = educationElement.value;
-        var experience = experienceElement.value;
-        var skill = skillElement.value;
-        var username = usernameElement.value;
-        var uniquePath = "resume/".concat(username.replace(/\s+/g, ''), "_cv.html"); // Corrected string interpolation
-        // Get profile picture file and generate URL
-        var profilepicture = (_a = profilepictureElement === null || profilepictureElement === void 0 ? void 0 : profilepictureElement.files) === null || _a === void 0 ? void 0 : _a[0];
-        var profilepictureURL = profilepicture ? URL.createObjectURL(profilepicture) : '';
-        // Create the resume output
-        var resumeOutput = "\n      <h2>Resume</h2>\n      ".concat(profilepictureURL ? "<img src=\"".concat(profilepictureURL, "\" alt=\"Profile Picture\" class=\"profilepicture\">") : '', "\n      <p><strong>Name:</strong><span id=\"edit.name\" class=\"editable\">").concat(name_1, "</span></p>\n      <p><strong>Last Name:</strong><span id=\"edit.lastname\" class=\"editable\">").concat(lastname, "</span></p>\n      <p><strong>Email:</strong><span id=\"edit.email\" class=\"editable\">").concat(email, "</span></p>\n      <p><strong>Phone:</strong><span id=\"edit.mobilenumber\" class=\"editable\">").concat(mobilenumber, "</span></p>\n      <p><strong>Address:</strong><span id=\"edit.address\" class=\"editable\">").concat(address, "</span></p>\n\n      <h3>Education</h3>\n      <p id=\"edit.education\" class=\"editable\">").concat(education, "</p>\n\n      <h3>Experience</h3>\n      <p id=\"edit.experience\" class=\"editable\">").concat(experience, "</p>\n\n      <h3>Skills</h3>\n      <p id=\"edit.skill\" class=\"editable\">").concat(skill, "</p>\n    ");
-        // Create download link for resume
-        var downloadLink = document.createElement('a');
-        downloadLink.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(resumeOutput); // Correct encoding and format
-        downloadLink.download = uniquePath;
-        downloadLink.textContent = 'Download your 2024 resume';
-        var resumeOutputElement = document.getElementById('resumeOutput');
-        if (resumeOutputElement) {
-            resumeOutputElement.innerHTML = resumeOutput;
-            resumeOutputElement.appendChild(downloadLink); // Add download link to the page
+/**
+ * Professional Resume Builder Logic
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const resumeForm = document.getElementById('resumeForm');
+    const resumePreview = document.getElementById('resumePreview');
+    const templateSelector = document.getElementById('templateSelector');
+    const themeColorPicker = document.getElementById('themeColor');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const profilePicInput = document.getElementById('profilepicture');
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // Shareable Elements
+    const usernameInput = document.getElementById('username');
+    const shareLinkContainer = document.getElementById('shareLinkContainer');
+    const shareableLinkSpan = document.getElementById('shareableLink');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+    // --- State ---
+    let profilePicURL = '';
+
+    /**
+     * Updates the resume preview and shareable link
+     */
+    const updatePreview = () => {
+        const data = {
+            username: usernameInput.value.trim(),
+            name: document.getElementById('name').value || 'Your Name',
+            email: document.getElementById('email').value || 'email@example.com',
+            phone: document.getElementById('mobilenumber').value || '+1 234 567 890',
+            address: document.getElementById('address').value || 'City, Country',
+            linkedin: document.getElementById('linkedin').value,
+            github: document.getElementById('github').value,
+            education: document.getElementById('education').value || 'Your Education details...',
+            experience: document.getElementById('experience').value || 'Your Experience details...',
+            skill: document.getElementById('skill').value || 'Your Skills...',
+            projectLink: document.getElementById('projectLink').value
+        };
+
+        const template = templateSelector.value;
+
+        // Construct Resume HTML
+        resumePreview.innerHTML = `
+            <div class="resume-header">
+                <div class="header-text">
+                    <h2>${data.name}</h2>
+                    <div class="contact-links">
+                        <span><i class="fas fa-envelope"></i> ${data.email}</span>
+                        <span><i class="fas fa-phone"></i> ${data.phone}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${data.address}</span>
+                        ${data.linkedin ? `<span><i class="fab fa-linkedin"></i> ${data.linkedin}</span>` : ''}
+                        ${data.github ? `<span><i class="fab fa-github"></i> ${data.github}</span>` : ''}
+                    </div>
+                </div>
+                ${profilePicURL ? `<img src="${profilePicURL}" class="resume-pic" alt="Profile">` : ''}
+            </div>
+
+            <div class="resume-section">
+                <h3>Education</h3>
+                <p>${data.education}</p>
+            </div>
+
+            <div class="resume-section">
+                <h3>Experience</h3>
+                <p>${data.experience}</p>
+            </div>
+
+            <div class="resume-section">
+                <h3>Skills</h3>
+                <p>${data.skill}</p>
+            </div>
+
+            ${data.projectLink ? `
+                <div class="resume-section">
+                    <h3>Featured Project</h3>
+                    <div class="project-box">
+                        <p><i class="fas fa-link"></i> <a href="${data.projectLink}" target="_blank">${data.projectLink}</a></p>
+                    </div>
+                </div>
+            ` : ''}
+        `;
+
+        // Apply Template Class
+        resumePreview.className = `resume-paper ${template}-template`;
+
+        // Update Shareable Link
+        if (data.username) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const uniqueUrl = `${baseUrl}?username=${data.username}`;
+            shareableLinkSpan.textContent = uniqueUrl;
+            shareLinkContainer.style.display = 'block';
+        } else {
+            shareLinkContainer.style.display = 'none';
         }
-        makeEditable(); // Call the function to make fields editable
-    }
-    else {
-        console.error('One or more input elements are missing');
-    }
-    // Function to make text editable on click
-    function makeEditable() {
-        var editableElements = document.querySelectorAll('.editable');
-        editableElements.forEach(function (element) {
-            element.addEventListener('click', function () {
-                var _a;
-                var currentElement = element;
-                var currentValue = currentElement.textContent || '';
-                if (currentElement.tagName === 'P' || currentElement.tagName === 'SPAN') {
-                    var input_1 = document.createElement('input');
-                    input_1.type = 'text';
-                    input_1.value = currentValue;
-                    input_1.classList.add('editing-input');
-                    input_1.addEventListener('blur', function () {
-                        currentElement.textContent = input_1.value;
-                        currentElement.style.display = 'inline'; // Show the element after editing
-                        input_1.remove(); // Remove input after editing
-                    });
-                    currentElement.style.display = 'none'; // Hide the current text element
-                    (_a = currentElement.parentNode) === null || _a === void 0 ? void 0 : _a.insertBefore(input_1, currentElement); // Insert input field
-                    input_1.focus(); // Automatically focus the input field
-                }
-            });
+    };
+
+    /**
+     * Copy Link to Clipboard
+     */
+    copyLinkBtn.addEventListener('click', () => {
+        const link = shareableLinkSpan.textContent;
+        navigator.clipboard.writeText(link).then(() => {
+            alert('Link copied to clipboard!');
         });
-    }
+    });
+
+    /**
+     * Dark Mode Toggle Logic
+     */
+    const toggleDarkMode = () => {
+        document.body.classList.toggle('dark-mode');
+        const icon = themeToggle.querySelector('i');
+        if (document.body.classList.contains('dark-mode')) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    };
+
+    // --- Listeners ---
+
+    resumeForm.addEventListener('input', updatePreview);
+    templateSelector.addEventListener('change', updatePreview);
+    themeToggle.addEventListener('click', toggleDarkMode);
+
+    themeColorPicker.addEventListener('input', (e) => {
+        const color = e.target.value;
+        document.documentElement.style.setProperty('--primary-color', color);
+    });
+
+    profilePicInput.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            profilePicURL = URL.createObjectURL(file);
+            updatePreview();
+        }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        window.print();
+    });
+
+    // Initial load
+    updatePreview();
 });

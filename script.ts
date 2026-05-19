@@ -1,99 +1,106 @@
-document.getElementById('resumeForm')?.addEventListener('submit', function(event) {
-  event?.preventDefault();
-  
-  // Type assertions
-  const profilepictureElement = document.getElementById('profilepicture') as HTMLInputElement;
-  const nameElement = document.getElementById('name') as HTMLInputElement;
-  const lastnameElement = document.getElementById('lastname') as HTMLInputElement;
-  const emailElement = document.getElementById('email') as HTMLInputElement; 
-  const mobilenumberElement = document.getElementById('mobilenumber') as HTMLInputElement;
-  const addressElement = document.getElementById('address') as HTMLInputElement;
-  const educationElement = document.getElementById('education') as HTMLInputElement;
-  const experienceElement = document.getElementById('experience') as HTMLInputElement;
-  const skillElement = document.getElementById('skill') as HTMLInputElement;
-  const usernameElement = document.getElementById("username") as HTMLInputElement;
+/**
+ * Professional Resume Builder - Core Logic
+ */
 
-  if (profilepictureElement && nameElement && lastnameElement && emailElement && mobilenumberElement && addressElement && educationElement && experienceElement && skillElement && usernameElement) {
-   
-    const name = nameElement.value;
-    const lastname = lastnameElement.value;
-    const email = emailElement.value;
-    const mobilenumber = mobilenumberElement.value;
-    const address = addressElement.value;
-    const education = educationElement.value;
-    const experience = experienceElement.value;
-    const skill = skillElement.value;
+document.addEventListener('DOMContentLoaded', () => {
+    const resumeForm = document.getElementById('resumeForm') as HTMLFormElement;
+    const resumePreview = document.getElementById('resumePreview') as HTMLElement;
+    const templateSelector = document.getElementById('templateSelector') as HTMLSelectElement;
+    const themeColorPicker = document.getElementById('themeColor') as HTMLInputElement;
+    const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
+    const profilePicInput = document.getElementById('profilepicture') as HTMLInputElement;
 
-    const username = usernameElement.value;
-    const uniquePath = `resume/${username.replace(/\s+/g, '')}_cv.html`; // Corrected string interpolation
+    // --- State ---
+    let profilePicURL = '';
 
-    // Get profile picture file and generate URL
-    const profilepicture = profilepictureElement?.files?.[0];
-    const profilepictureURL = profilepicture ? URL.createObjectURL(profilepicture) : '';
+    // --- Core Functions ---
 
-    // Create the resume output
-    const resumeOutput = `
-      <h2>Resume</h2>
-      ${profilepictureURL ? `<img src="${profilepictureURL}" alt="Profile Picture" class="profilepicture">` : ''}
-      <p><strong>Name:</strong><span id="edit.name" class="editable">${name}</span></p>
-      <p><strong>Last Name:</strong><span id="edit.lastname" class="editable">${lastname}</span></p>
-      <p><strong>Email:</strong><span id="edit.email" class="editable">${email}</span></p>
-      <p><strong>Phone:</strong><span id="edit.mobilenumber" class="editable">${mobilenumber}</span></p>
-      <p><strong>Address:</strong><span id="edit.address" class="editable">${address}</span></p>
+    /**
+     * Updates the resume preview based on current form data
+     */
+    const updatePreview = () => {
+        const formData = new FormData(resumeForm);
+        
+        // Extract values (using IDs directly since FormData requires 'name' attribute which I might have missed in HTML, 
+        // let's use direct element access for reliability)
+        const data = {
+            name: (document.getElementById('name') as HTMLInputElement).value || 'Your',
+            lastname: (document.getElementById('lastname') as HTMLInputElement).value || 'Name',
+            email: (document.getElementById('email') as HTMLInputElement).value || 'hello@example.com',
+            phone: (document.getElementById('mobilenumber') as HTMLInputElement).value || '+1 234 567 890',
+            address: (document.getElementById('address') as HTMLInputElement).value || 'Location, Country',
+            education: (document.getElementById('education') as HTMLTextAreaElement).value || 'Your Education details...',
+            experience: (document.getElementById('experience') as HTMLTextAreaElement).value || 'Your Work Experience...',
+            skills: (document.getElementById('skill') as HTMLTextAreaElement).value || 'Your Skills...'
+        };
 
-      <h3>Education</h3>
-      <p id="edit.education" class="editable">${education}</p>
+        const template = templateSelector.value;
 
-      <h3>Experience</h3>
-      <p id="edit.experience" class="editable">${experience}</p>
+        // Generate Resume HTML
+        resumePreview.innerHTML = `
+            <div class="resume-header">
+                <div class="header-main">
+                    <h2 class="editable">${data.name} ${data.lastname}</h2>
+                    <div class="contact-info">
+                        <p>${data.email} | ${data.phone}</p>
+                        <p>${data.address}</p>
+                    </div>
+                </div>
+                ${profilePicURL ? `<img src="${profilePicURL}" class="preview-pic" alt="Profile">` : ''}
+            </div>
 
-      <h3>Skills</h3>
-      <p id="edit.skill" class="editable">${skill}</p>
-    `;
+            <div class="resume-section">
+                <h3>Education</h3>
+                <p class="editable" style="white-space: pre-line;">${data.education}</p>
+            </div>
 
-    // Create download link for resume
-    const downloadLink = document.createElement('a');
-    downloadLink.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(resumeOutput); // Correct encoding and format
-    downloadLink.download = uniquePath;
-    downloadLink.textContent = 'Download your 2024 resume';
+            <div class="resume-section">
+                <h3>Experience</h3>
+                <p class="editable" style="white-space: pre-line;">${data.experience}</p>
+            </div>
 
-    const resumeOutputElement = document.getElementById('resumeOutput');
-    if (resumeOutputElement) {
-      resumeOutputElement.innerHTML = resumeOutput;
-      resumeOutputElement.appendChild(downloadLink); // Add download link to the page
-    }
+            <div class="resume-section">
+                <h3>Skills</h3>
+                <p class="editable" style="white-space: pre-line;">${data.skills}</p>
+            </div>
+        `;
 
-    makeEditable(); // Call the function to make fields editable
+        // Apply Template Class
+        resumePreview.className = `resume-paper ${template}-template`;
+    };
 
-  } else {
-    console.error('One or more input elements are missing');
-  }
+    // --- Event Listeners ---
 
-  // Function to make text editable on click
-  function makeEditable() {
-    const editableElements = document.querySelectorAll('.editable');
-    editableElements.forEach((element) => {
-      element.addEventListener('click', function() {
-        const currentElement = element as HTMLElement;
-        const currentValue = currentElement.textContent || '';
-
-        if (currentElement.tagName === 'P' || currentElement.tagName === 'SPAN') {
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = currentValue;
-          input.classList.add('editing-input');
-
-          input.addEventListener('blur', function() {
-            currentElement.textContent = input.value;
-            currentElement.style.display = 'inline'; // Show the element after editing
-            input.remove(); // Remove input after editing
-          });
-
-          currentElement.style.display = 'none'; // Hide the current text element
-          currentElement.parentNode?.insertBefore(input, currentElement); // Insert input field
-          input.focus(); // Automatically focus the input field
-        }
-      });
+    // Live update on any input
+    resumeForm.addEventListener('input', () => {
+        updatePreview();
     });
-  }
+
+    // Template selection
+    templateSelector.addEventListener('change', () => {
+        updatePreview();
+    });
+
+    // Theme color update
+    themeColorPicker.addEventListener('input', (e) => {
+        const color = (e.target as HTMLInputElement).value;
+        document.documentElement.style.setProperty('--primary-color', color);
+    });
+
+    // Profile Picture Handling
+    profilePicInput.addEventListener('change', (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+            profilePicURL = URL.createObjectURL(file);
+            updatePreview();
+        }
+    });
+
+    // PDF Download (Print)
+    downloadBtn.addEventListener('click', () => {
+        window.print();
+    });
+
+    // Initial Preview
+    updatePreview();
 });
